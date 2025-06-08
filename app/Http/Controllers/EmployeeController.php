@@ -52,9 +52,15 @@ class EmployeeController extends Controller
         return redirect()->route('employee.logs')->with('success', 'Log submitted!');
     }
 
-    public function viewLogs()
+    public function dashboard()
     {
-        $logs = TimeLog::where('user_id', Auth::id())->with('subproject.project.department')->latest()->get();
-        return view('employee.view-logs', compact('logs'));
+        $employeeId = auth()->user()->id;
+
+        $logs = TimeLog::with(['subproject.project.department'])
+            ->where('employee_id', $employeeId)
+            ->latest()
+            ->get();
+
+        return view('employee.dashboard', compact('logs'));
     }
 }
