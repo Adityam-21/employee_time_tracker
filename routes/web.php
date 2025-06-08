@@ -20,16 +20,16 @@ Route::middleware(['auth', 'role:manager'])->group(function () {
     Route::get('/manager/logs/{id}/edit', [ManagerController::class, 'edit'])->name('manager.logs.edit');
     Route::put('/manager/logs/{id}', [ManagerController::class, 'update'])->name('manager.logs.update');
     Route::delete('/manager/logs/{id}', [ManagerController::class, 'destroy'])->name('manager.logs.destroy');
+    Route::post('/employee/logs', [ManagerController::class, 'registerEmployee'])->name('employee.logs');
 });
 
 Route::middleware(['auth', 'role:employee'])->group(function () {
-    Route::get('/employee/dashboard', [EmployeeController::class, 'index'])->name('employee.dashboard');
+    Route::get('/employee/dashboard', [EmployeeController::class, 'dashboard'])->name('employee.dashboard');
 });
 
 Route::get('/employee/log-time', [EmployeeController::class, 'logTimeForm'])->name('employee.logTimeForm');
 Route::post('/employee/log-time', [EmployeeController::class, 'storeLog'])->name('employee.storeLog');
-
-Route::get('/employee/logs', [EmployeeController::class, 'viewLogs'])->name('employee.logs');
+Route::get('/employee/logs', [EmployeeController::class, 'dashboard'])->name('employee.logs');
 
 Route::get('/projects/{department}', [EmployeeController::class, 'getProjects']);
 Route::get('/subprojects/{project}', [EmployeeController::class, 'getSubprojects']);

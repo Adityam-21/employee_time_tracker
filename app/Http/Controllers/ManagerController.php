@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\TimeLog;
 use App\Models\Department;
@@ -11,20 +12,43 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ManagerController extends Controller
 {
+    // EMPLOYEE REGISTRATION METHOD
+    public function registerEmployee(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'employee',
+        ]);
+
+        return redirect()->back()->with('success', 'Employee registered successfully.');
+    }
+
     public function index(Request $request)
     {
         $employees = User::where('role', 'employee')->get();
         $departments = Department::with('projects.subprojects')->get();
 
-        $logs = TimeLog::with('user', 'subproject.project.department')
-            ->when($request->user_id, fn($q) => $q->where('user_id', $request->user_id))
-            ->when($request->subproject_id, fn($q) => $q->where('subproject_id', $request->subproject_id))
-            ->when($request->from, fn($q) => $q->whereDate('date', '>=', $request->from))
-            ->when($request->to, fn($q) => $q->whereDate('date', '<=', $request->to))
-            ->latest()
+        $logs = TimeLog::with(['user', 'employee'])->select('time_logs.*', 'departments.name as department_name', 'projects.name as project_name', 'subprojects.name as subproject_name')
+            ->leftJoin('departments', 'time_logs.department', '=', 'departments.id')
+            ->leftJoin('projects', 'time_logs.project', '=', 'projects.id')
+            ->leftJoin('subprojects', 'time_logs.project', '=', 'subprojects.id')
             ->get();
 
         return view('manager.logs', compact('employees', 'departments', 'logs'));
+    }
+
+    public function logs()
+    {
+        $logs = TimeLog::with('employee')->get();
+        return view('manager.logs', compact('logs'));
     }
 
     public function edit($id)
@@ -62,12 +86,7 @@ class ManagerController extends Controller
 
     public function export(Request $request)
     {
-        $logs = TimeLog::with('user', 'subproject.project.department')
-            ->when($request->user_id, fn($q) => $q->where('user_id', $request->user_id))
-            ->when($request->subproject_id, fn($q) => $q->where('subproject_id', $request->subproject_id))
-            ->when($request->from, fn($q) => $q->whereDate('date', '>=', $request->from))
-            ->when($request->to, fn($q) => $q->whereDate('date', '<=', $request->to))
-            ->latest()
+        $logs = TimeLog::with(['user', 'subproject', 'project', 'department', 'employee'])
             ->get();
 
         return Excel::download(new TimeLogsExport($logs), 'time_logs.csv');

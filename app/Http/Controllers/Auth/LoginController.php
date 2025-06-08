@@ -8,7 +8,26 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    // Other methods...
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    public function login(Request $request)
+    {
+        // Validate input
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // Attempt login
+        if (Auth::attempt($request->only('email', 'password'))) {
+            return $this->authenticated($request, Auth::user());
+        } else {
+            return back()->withErrors(['email' => 'Invalid credentials'])->withInput();
+        }
+    }
 
     protected function authenticated(Request $request, $user)
     {
@@ -22,5 +41,11 @@ class LoginController extends Controller
 
         // Default fallback
         return redirect('/home');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        return redirect()->route('login');
     }
 }
