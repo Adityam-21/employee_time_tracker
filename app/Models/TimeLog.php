@@ -3,12 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TimeLog extends Model
 {
-    public function subproject()
+    use SoftDeletes;
+
+    protected $fillable = ['date', 'time', 'start_time', 'end_time', 'total_hours', 'department', 'project', 'subproject', 'employee_id'];
+
+    public function department()
     {
-        return $this->belongsTo(Subproject::class);
+        return $this->belongsTo(Department::class);
     }
 
     public function project()
@@ -16,15 +21,16 @@ class TimeLog extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function department()
+    public function subproject()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Subproject::class);
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
     public function employee()
     {
         return $this->belongsTo(User::class, 'employee_id');

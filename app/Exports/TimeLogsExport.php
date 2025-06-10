@@ -20,20 +20,29 @@ class TimeLogsExport implements FromCollection, WithHeadings
     {
         return $this->logs->map(function ($log) {
             return [
-                'Employee' => $log->user->name,
-                'Date' => $log->date,
-                'Department' => $log->subproject->project->department->name,
-                'Project' => $log->subproject->project->name,
-                'Subproject' => $log->subproject->name,
-                'Start Time' => $log->start_time,
-                'End Time' => $log->end_time,
-                'Total Hours' => $log->total_hours,
+                'Employee'     => ($log->user_name ?? 'N/A'),
+                'Date'         => $log->date,
+                'Department'   => ($log->department_name ?? 'N/A'),
+                'Project'      => ($log->project_name ?? 'N/A'),
+                'Subproject'   => ($log->subproject_name ?? 'N/A'),
+                'Start Time'   => $log->start_time,
+                'End Time'     => $log->end_time,
+                'Total Hours'  => $log->total_hours,
             ];
         });
     }
 
     public function headings(): array
     {
-        return ['Employee', 'Date', 'Department', 'Project', 'Subproject', 'Start Time', 'End Time', 'Total Hours'];
+        return [
+            'Employee',
+            'Date',
+            'Department',
+            'Project',
+            'Subproject',
+            'Start Time',
+            'End Time',
+            'Total Hours'
+        ];
     }
 }
