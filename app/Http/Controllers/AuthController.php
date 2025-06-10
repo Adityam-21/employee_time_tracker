@@ -6,16 +6,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Events\UserRegistered;
 
 class AuthController extends Controller
 {
-    // Show register page
+
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    // Handle registration
+
     public function register(Request $request)
     {
         $request->validate([
@@ -25,23 +26,26 @@ class AuthController extends Controller
             'role' => 'required|in:employee,manager'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'role' => ucfirst($request->role),
             'password' => Hash::make($request->password)
         ]);
 
+
+        event(new UserRegistered($user));
+
         return redirect()->route('login')->with('success', 'Account created!');
     }
 
-    // Show login page
+
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    // Handle login
+
     public function login(Request $request)
     {
         $request->validate([
@@ -56,14 +60,14 @@ class AuthController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
-    // Handle logout
+
     public function logout()
     {
         Auth::logout();
         return redirect()->route('login');
     }
 
-    // Role-based redirect after login
+
     protected function authenticated(Request $request, $user)
     {
         if (strcasecmp($user->role, 'Manager') === 0) {

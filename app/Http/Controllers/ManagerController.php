@@ -12,7 +12,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ManagerController extends Controller
 {
-    // EMPLOYEE REGISTRATION METHOD
     public function registerEmployee(Request $request)
     {
         $request->validate([
@@ -36,11 +35,39 @@ class ManagerController extends Controller
         $employees = User::where('role', 'employee')->get();
         $departments = Department::with('projects.subprojects')->get();
 
-        $logs = TimeLog::with(['user', 'employee'])->select('time_logs.*', 'departments.name as department_name', 'projects.name as project_name', 'subprojects.name as subproject_name')
+        $query = TimeLog::with(['user', 'employee'])
+            ->select('time_logs.*', 'departments.name as department_name', 'projects.name as project_name', 'subprojects.name as subproject_name')
             ->leftJoin('departments', 'time_logs.department', '=', 'departments.id')
             ->leftJoin('projects', 'time_logs.project', '=', 'projects.id')
-            ->leftJoin('subprojects', 'time_logs.project', '=', 'subprojects.id')
-            ->get();
+            ->leftJoin('subprojects', 'time_logs.subproject', '=', 'subprojects.id')
+            ->join('users', 'time_logs.employee_id', '=', 'users.id')
+            ->where('users.role', 'employee');
+
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
+
+        if ($request->filled('department_id')) {
+            $query->where('department', $request->department_id);
+        }
+
+        if ($request->filled('project_id')) {
+            $query->where('project', $request->project_id);
+        }
+
+        if ($request->filled('subproject_id')) {
+            $query->where('subproject', $request->subproject_id);
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('date', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('date', '<=', $request->to);
+        }
+
+        $logs = $query->get();
 
         return view('manager.logs', compact('employees', 'departments', 'logs'));
     }
@@ -53,41 +80,67 @@ class ManagerController extends Controller
 
     public function edit($id)
     {
-        $log = TimeLog::with('subproject.project.department')->findOrFail($id);
-        return view('manager.edit-log', compact('log'));
+        $log = TimeLog::findOrFail($id);
+        return view('manager.edit', compact('log'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'start_time' => 'required',
-            'end_time' => 'required|after:start_time',
+            'date' => 'required|date',
+            'time' => 'required|string',
         ]);
 
         $log = TimeLog::findOrFail($id);
-        $start = strtotime($request->start_time);
-        $end = strtotime($request->end_time);
-        $hours = round(($end - $start) / 3600, 2);
+        $log->date = $request->date;
+        $log->time = $request->time;
+        $log->save();
 
-        $log->update([
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'total_hours' => $hours,
-        ]);
-
-        return redirect()->route('manager.logs')->with('success', 'Log updated.');
+        return redirect()->route('manager.logs')->with('success', 'Log updated successfully.');
     }
 
     public function destroy($id)
     {
-        TimeLog::findOrFail($id)->delete();
+        $log = TimeLog::findOrFail($id);
+        $log->delete();
         return back()->with('success', 'Log deleted.');
     }
 
     public function export(Request $request)
     {
-        $logs = TimeLog::with(['user', 'subproject', 'project', 'department', 'employee'])
-            ->get();
+        $query = TimeLog::with(['user', 'employee'])
+            ->select('time_logs.*', 'departments.name as department_name', 'projects.name as project_name', 'subprojects.name as subproject_name')
+            ->leftJoin('departments', 'time_logs.department', '=', 'departments.id')
+            ->leftJoin('projects', 'time_logs.project', '=', 'projects.id')
+            ->leftJoin('subprojects', 'time_logs.subproject', '=', 'subprojects.id')
+            ->join('users', 'time_logs.employee_id', '=', 'users.id')
+            ->where('users.role', 'employee');
+
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
+
+        if ($request->filled('department_id')) {
+            $query->where('department', $request->department_id);
+        }
+
+        if ($request->filled('project_id')) {
+            $query->where('project', $request->project_id);
+        }
+
+        if ($request->filled('subproject_id')) {
+            $query->where('subproject', $request->subproject_id);
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('date', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('date', '<=', $request->to);
+        }
+
+        $logs = $query->get();
 
         return Excel::download(new TimeLogsExport($logs), 'time_logs.csv');
     }

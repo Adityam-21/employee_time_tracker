@@ -4,25 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up()
     {
         Schema::create('time_logs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id'); // Foreign key
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subproject_id')->constrained()->onDelete('cascade');
             $table->date('date');
-            $table->string('department');
-            $table->string('project');
-            $table->string('subproject');
             $table->time('start_time');
             $table->time('end_time');
-            $table->float('total_hours');
+            $table->decimal('total_hours', 5, 2);
             $table->timestamps();
-
-            $table->foreign('employee_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
+
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('time_logs');
