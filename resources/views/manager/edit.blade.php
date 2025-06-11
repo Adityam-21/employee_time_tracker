@@ -14,9 +14,11 @@
         @csrf
         @method('PUT')
 
+
         <div>
             <label class="block font-medium">Date:</label>
-            <input type="date" name="date" value="{{ $log->date }}" class="border p-2 rounded w-full" required>
+            <input type="date" name="to_date" value="{{ $log->to_date ?? '' }}" max="{{ date('Y-m-d') }}"
+                class="border p-2 rounded w-full" required>
         </div>
 
         <div>
@@ -26,7 +28,6 @@
 
         <div class="flex space-x-4">
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update</button>
-
             <a href="{{ route('manager.logs') }}" class="bg-gray-500 text-white px-4 py-2 rounded">Back to Logs</a>
         </div>
     </form>

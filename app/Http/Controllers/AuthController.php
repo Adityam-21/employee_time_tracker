@@ -53,11 +53,18 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        $credentials = request(['email', 'password']);
+  
+        if (! $token = Auth::attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
         if (Auth::attempt($request->only('email', 'password'))) {
             return $this->authenticated($request, Auth::user());
         }
 
         return back()->withErrors(['email' => 'Invalid credentials']);
+        return $this->respondWithToken($token);
     }
 
 
@@ -79,5 +86,26 @@ class AuthController extends Controller
         }
 
         return redirect('/home');
+    }
+
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+  
+    /**
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 }
