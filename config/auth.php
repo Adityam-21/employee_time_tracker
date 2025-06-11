@@ -45,6 +45,11 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+        ],
     ],
 
     /*
@@ -104,7 +109,7 @@ return [
             'table' => 'admin_password_resets',
             'expire' => 60,
             'throttle' => 60,
-        ],
+        ]
     ],
 
     /*

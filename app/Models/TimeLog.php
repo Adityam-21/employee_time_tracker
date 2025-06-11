@@ -9,7 +9,7 @@ class TimeLog extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['date', 'time', 'start_time', 'end_time', 'total_hours', 'department', 'project', 'subproject', 'employee_id'];
+    protected $guarded = [];
 
     public function department()
     {
