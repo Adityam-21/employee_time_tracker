@@ -28,7 +28,7 @@ Route::middleware(['auth', 'role:manager'])->group(function () { //2 middlewares
 Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::get('/employee/dashboard', [EmployeeController::class, 'dashboard'])->name('employee.dashboard');
     Route::get('/employee/log-time', [EmployeeController::class, 'create'])->name('employee.log-time');
-    Route::post('/employee/log-time', [EmployeeController::class, 'store'])->name('employeFe.log-time.store');
+    Route::post('/employee/log-time', [EmployeeController::class, 'store'])->name('employee.log-time.store');
     Route::get('/employee/view-log', [EmployeeController::class, 'viewLogs'])->name('employee.view-log');
 });
 

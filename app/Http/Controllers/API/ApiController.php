@@ -136,7 +136,7 @@ class ApiController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => $ttl * 60,
-            'expires_at' => now()->addDays($ttl)->toDateTimeString(), // ✅ cast safe
+            'expires_at' => now()->addDays($ttl)->toDateTimeString(),
         ]);
     }
 }
