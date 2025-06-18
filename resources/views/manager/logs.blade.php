@@ -8,24 +8,24 @@
     <form action="{{ route('employee.logs') }}" method="POST" class="mb-6 grid grid-cols-4 gap-4 items-end">
         @csrf
         <div>
-            <label for="name" class="block font-medium">Name:</label>
-            <input type="text" name="name" id="name" class="border p-2 rounded w-full" required>
+            <label for="name" class="block font-medium text-white">Name:</label>
+            <input type="text" name="name" id="name" class="border p-2 rounded w-full text-black" required>
         </div>
 
         <div>
-            <label for="email" class="block font-medium">Email:</label>
-            <input type="email" name="email" id="email" class="border p-2 rounded w-full" required>
+            <label for="email" class="block font-medium text-white">Email:</label>
+            <input type="email" name="email" id="email" class="border p-2 rounded w-full text-black" required>
         </div>
 
         <div>
-            <label for="password" class="block font-medium">Password:</label>
-            <input type="password" name="password" id="password" class="border p-2 rounded w-full" required>
+            <label for="password" class="block font-medium text-white">Password:</label>
+            <input type="password" name="password" id="password" class="border p-2 rounded w-full text-black" required>
         </div>
 
         <div>
-            <label for="password_confirmation" class="block font-medium">Confirm Password:</label>
-            <input type="password" name="password_confirmation" id="password_confirmation" class="border p-2 rounded w-full"
-                required>
+            <label for="password_confirmation" class="block font-medium text-white">Confirm Password:</label>
+            <input type="password" name="password_confirmation" id="password_confirmation"
+                class="border p-2 rounded w-full text-black" required>
         </div>
 
         <div class="col-span-4">
@@ -41,7 +41,7 @@
     <h2 class="text-xl font-bold mb-4">All Employee Time Logs</h2>
 
     <form method="GET" class="grid grid-cols-6 gap-4 mb-4">
-        <select name="employee_id" class="border p-2 rounded">
+        <select name="employee_id" class="border p-2 rounded text-black">
             <option value="">All Employees</option>
             @foreach ($employees as $employee)
                 <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
@@ -50,7 +50,7 @@
             @endforeach
         </select>
 
-        <select name="department_id" class="border p-2 rounded">
+        <select name="department_id" class="border p-2 rounded text-black">
             <option value="">All Departments</option>
             @foreach ($departments as $dept)
                 <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>
@@ -59,7 +59,7 @@
             @endforeach
         </select>
 
-        <select name="project_id" class="border p-2 rounded">
+        <select name="project_id" class="border p-2 rounded text-black">
             <option value="">All Projects</option>
             @foreach ($departments as $dept)
                 @foreach ($dept->projects as $proj)
@@ -70,7 +70,7 @@
             @endforeach
         </select>
 
-        <select name="subproject_id" class="border p-2 rounded">
+        <select name="subproject_id" class="border p-2 rounded text-black">
             <option value="">All Subprojects</option>
             @foreach ($departments as $dept)
                 @foreach ($dept->projects as $proj)
@@ -85,9 +85,9 @@
 
         @php $today = date('Y-m-d'); @endphp
         <input type="date" name="from" value="{{ request('from') }}" max="{{ $today }}"
-            class="border p-2 rounded">
+            class="border p-2 rounded text-black">
         <input type="date" name="to" value="{{ request('to') }}" max="{{ $today }}"
-            class="border p-2 rounded">
+            class="border p-2 rounded text-black">
 
         <button class="bg-green-600 text-white px-4 py-2 rounded col-span-1">Filter</button>
         <a href="{{ route('manager.logs.export', request()->query()) }}"
@@ -96,7 +96,7 @@
 
     {{-- Table --}}
     <table class="w-full text-left border">
-        <thead class="bg-gray-200">
+        <thead class="bg-gray-200 text-black">
             <tr>
                 <th class="p-2">Employee</th>
                 <th class="p-2">Date</th>

@@ -1,50 +1,67 @@
 @extends('layout')
+
 @section('title', 'Employee Dashboard')
 
 @section('content')
-    <h2 class="text-xl font-bold mb-4">Welcome Employee: {{ Auth::user()->name }}</h2>
-    <p class="mb-6">Your Logged Hours</p>
+    <div class="max-w-6xl mx-auto bg-black p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4 text-blue-700">Welcome, {{ auth()->user()->name }}</h2>
 
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+        @if (session('success'))
+            <div class="mb-4 p-4 bg-green-100 text-green-800 rounded shadow">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <form action="{{ route('employee.log-time') }}" method="GET" class="mb-6">
+            <label for="date" class="block mb-2 text-sm font-medium text-gray-700">Select Date</label>
+            <input type="date" id="date" name="date" value="{{ request('date') }}" max="{{ date('Y-m-d') }}"
+                class="w-full px-4 py-2 border rounded text-black" required>
+
+            <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
+                Log Time
+            </button>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-black border">
+                <thead>
+                    <tr class="bg-gray-200 text-gray-700">
+                        <th class="px-4 py-2 border">Date</th>
+                        <th class="px-4 py-2 border">Department</th>
+                        <th class="px-4 py-2 border">Project</th>
+                        <th class="px-4 py-2 border">Subproject</th>
+                        <th class="px-4 py-2 border">Start Time</th>
+                        <th class="px-4 py-2 border">End Time</th>
+                        <th class="px-4 py-2 border">Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($logs as $log)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 border text-center">
+                                {{ \Carbon\Carbon::parse($log->date)->format('d/m/Y') }}</td>
+                            <td class="px-4 py-2 border text-center">{{ $log->department_name }}</td>
+                            <td class="px-4 py-2 border text-center">{{ $log->project_name }}</td>
+                            <td class="px-4 py-2 border text-center">{{ $log->subproject_name }}</td>
+                            <td class="px-4 py-2 border text-center">
+                                {{ \Carbon\Carbon::parse($log->start_time)->format('H:i') }}</td>
+                            <td class="px-4 py-2 border text-center">
+                                {{ \Carbon\Carbon::parse($log->end_time)->format('H:i') }}</td>
+                            <td class="px-4 py-2 border text-center">{{ $log->total_hours }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-4 border text-center text-black-500">No logs available.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    @endif
 
-    <table class="table-auto w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-gray-200 text-gray-700">
-            <tr>
-                <th class="px-4 py-2">Date</th>
-                <th class="px-4 py-2">Department</th>
-                <th class="px-4 py-2">Project</th>
-                <th class="px-4 py-2">Subproject</th>
-                <th class="px-4 py-2">Start</th>
-                <th class="px-4 py-2">End</th>
-                <th class="px-4 py-2">Total (hrs)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($logs as $log)
-                <tr class="border-t">
-                    <td class="px-4 py-2">{{ \Carbon\Carbon::parse($log->date)->format('d M Y') }}</td>
-                    <td class="px-4 py-2">{{ $log->department_name ?? 'N/A' }}</td>
-                    <td class="px-4 py-2">{{ $log->project_name ?? 'N/A' }}</td>
-                    <td class="px-4 py-2">{{ $log->subproject_name ?? 'N/A' }}</td>
-                    <td class="px-4 py-2">{{ $log->start_time }}</td>
-                    <td class="px-4 py-2">{{ $log->end_time }}</td>
-                    <td class="px-4 py-2">{{ $log->total_hours }}</td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="7" class="px-4 py-4 text-center text-gray-500">No logs found</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    <a href="{{ route('employee.log-time') }}">
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
-            Log New Work Hours
-        </button>
-    </a>
+        @if ($logs->count() > 0)
+            <div class="mt-4 text-sm text-black-600">
+                Total Records: {{ $logs->count() }}
+            </div>
+        @endif
+    </div>
 @endsection

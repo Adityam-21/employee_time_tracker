@@ -39,11 +39,7 @@ class EmployeeController extends Controller
 
     public function store(Request $request)
     {
-        //dd($request->all());
         $validated = $request->validate([
-            //'name' => 'required|string',
-            //'email' => 'required|email|unique:employees,email',
-            //'password' => 'required|string|confirmed',
             'department_id' => 'required',
             'project_id' => 'required',
             'subproject_id' => 'required',
@@ -52,22 +48,11 @@ class EmployeeController extends Controller
             'end_time' => 'required|after:start_time',
         ]);
 
-
-        //if ($request->has('name') && $request->has('email') && $request->has('password')) {
-        //    $employee = new Employee();
-        //    $employee->name = $validated['name'];
-        //    $employee->email = $validated['email'];
-        //    $employee->password = bcrypt($validated['password']);
-        //    $employee->save();
-        //
-        //    return redirect()->route('manager.logs')->with('success', 'Employee registered successfully!');
-        //}
-
         $startTime = new DateTime($request->get('start_time'));
         $endTime = new DateTime($request->get('end_time'));
         $totalHrs = $startTime->diff($endTime);
-        // dd($totalHrs);
-        $status = TimeLog::create([
+
+        TimeLog::create([
             'employee_id' => Auth::id(),
             'department' => $request->department_id,
             'project' => $request->project_id,
@@ -75,29 +60,31 @@ class EmployeeController extends Controller
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'time' => \Carbon\Carbon::now()->format('h:i:s'),
+            'time' => Carbon::now()->format('H:i:s'),
             'total_hours' => $totalHrs->format('%H:%I')
-
-
-            //'logged_manually' => true,
         ]);
 
-        return redirect()->route('employee.dashboard')->with('success', 'Time log added!');
+        return redirect()->route('employee.dashboard')->with('success', 'Time log added successfully!');
     }
 
 
     public function dashboard()
     {
-
-        $logs = TimeLog::with(['user', 'employee'])
-            ->select('time_logs.*', 'departments.name as department_name', 'projects.name as project_name', 'subprojects.name as subproject_name')
-            ->leftJoin('departments', 'time_logs.department', '=', 'departments.id')
-            ->leftJoin('projects', 'time_logs.project', '=', 'projects.id')
-            ->leftJoin('subprojects', 'time_logs.subproject', '=', 'subprojects.id')
+        $logs = TimeLog::select(
+            'time_logs.*',
+            'departments.name as department_name',
+            'projects.name as project_name',
+            'subprojects.name as subproject_name',
+            'users.name as employee_name'
+        )
+            ->join('departments', 'time_logs.department', '=', 'departments.id')
+            ->join('projects', 'time_logs.project', '=', 'projects.id')
+            ->join('subprojects', 'time_logs.subproject', '=', 'subprojects.id')
             ->join('users', 'time_logs.employee_id', '=', 'users.id')
-            ->where('users.role', 'employee')->get();
-
-            
+            ->where('time_logs.employee_id', Auth::id())
+            ->orderBy('time_logs.date', 'desc')
+            ->orderBy('time_logs.start_time', 'desc')
+            ->get();
 
         return view('employee.dashboard', compact('logs'));
     }
