@@ -69,7 +69,19 @@ class ManagerController extends Controller
 
         $logs = $query->get();
 
-        return view('manager.logs', compact('employees', 'departments', 'logs'));
+        // ✅ Dynamic Chart Data for Total Hours per Employee
+        $employeeHours = TimeLog::with('employee')
+            ->selectRaw('employee_id, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time)) as total_hours')
+            ->groupBy('employee_id')
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'name' => $log->employee->name,
+                    'hours' => $log->total_hours
+                ];
+            });
+
+        return view('manager.logs', compact('employees', 'departments', 'logs', 'employeeHours'));
     }
 
     public function logs()
@@ -143,5 +155,26 @@ class ManagerController extends Controller
         $logs = $query->get();
 
         return Excel::download(new TimeLogsExport($logs), 'time_logs.csv');
+    }
+
+    public function charts()
+    {
+        // Optional separate chart route
+    }
+
+    public function dashboard()
+    {
+        $employeeHours = TimeLog::with('employee')
+            ->selectRaw('employee_id, SUM(TIMESTAMPDIFF(HOUR, start_time, end_time)) as total_hours')
+            ->groupBy('employee_id')
+            ->get()
+            ->map(function ($log) {
+                return [
+                    'name' => $log->employee->name,
+                    'hours' => $log->total_hours
+                ];
+            });
+
+        return view('manager.dashboard', compact('employeeHours'));
     }
 }

@@ -34,5 +34,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'mcp' => [
+        'base_url' => env('MCP_SERVER_URL'),
+    ]
 
 ];
