@@ -1,67 +1,88 @@
 @extends('layout')
+
 @section('title', 'Log Time')
+
 @section('content')
-    <h2 class="text-xl font-semibold mb-4">Log Your Work Hours</h2>
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-6 text-blue-700">Log Your Time</h2>
 
-    @if (session('success'))
-        <div class="bg-green-100 text-green-800 p-2 rounded mb-4">{{ session('success') }}</div>
-    @endif
+        @if (session('success'))
+            <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
+                {{ session('success') }}
+            </div>
+        @endif
 
-    <form method="POST" action="{{ route('employee.log-time.store') }}" class="space-y-4">
-        @csrf
+        @if ($errors->any())
+            <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <select name="department_id" class="w-full p-2 border rounded" required>
-            <option value="">Select Department</option>
-            @foreach ($departments as $department)
-                <option value="{{ $department->id }}">{{ $department->name }}</option>
-            @endforeach
-        </select>
+        <form action="{{ route('employee.log-time.store') }}" method="POST">
+            @csrf
 
-        <select name="project_id" class="w-full p-2 border rounded" required>
-            <option value="">Select Project</option>
-            @foreach ($projects as $project)
-                <option value="{{ $project->id }}">{{ $project->name }}</option>
-            @endforeach
-        </select>
+            <div class="mb-4">
+                <label for="date" class="block mb-2 text-sm font-medium text-gray-700">Date</label>
+                <input type="date" name="date" id="date" value="{{ request('date', date('Y-m-d')) }}"
+                    class="w-full px-4 py-2 border rounded text-black" required>
+            </div>
 
-        <select name="subproject_id" class="w-full p-2 border rounded" required>
-            <option value="">Select Subproject</option>
-            @foreach ($subprojects as $subproject)
-                <option value="{{ $subproject->id }}">{{ $subproject->name }}</option>
-            @endforeach
-        </select>
+            <div class="mb-4">
+                <label for="department_id" class="block mb-2 text-sm font-medium text-gray-700">Department</label>
+                <select name="department_id" id="department_id" class="w-full px-4 py-2 border rounded text-black" required>
+                    <option value="">Select Department</option>
+                    @foreach ($departments as $dept)
+                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-        <input type="date" name="date" class="w-full p-2 border rounded" max="{{ date('Y-m-d') }}" required>
-        <input type="time" name="start_time" class="w-full p-2 border rounded" id="start_time" required>
-        <input type="time" name="end_time" class="w-full p-2 border rounded" required>
+            <div class="mb-4">
+                <label for="project_id" class="block mb-2 text-sm font-medium text-gray-700">Project</label>
+                <select name="project_id" id="project_id" class="w-full px-4 py-2 border rounded text-black" required>
+                    <option value="">Select Project</option>
+                    @foreach ($projects as $proj)
+                        <option value="{{ $proj->id }}">{{ $proj->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Log Time</button>
-    </form>
+            <div class="mb-4">
+                <label for="subproject_id" class="block mb-2 text-sm font-medium text-gray-700">Subproject</label>
+                <select name="subproject_id" id="subproject_id" class="w-full px-4 py-2 border rounded text-black" required>
+                    <option value="">Select Subproject</option>
+                    @foreach ($subprojects as $sub)
+                        <option value="{{ $sub->id }}">{{ $sub->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dateInput = document.querySelector('input[name="date"]');
-            const startTimeInput = document.querySelector('#start_time');
+            <div class="mb-4">
+                <label for="start_time" class="block mb-2 text-sm font-medium text-gray-700">Start Time</label>
+                <input type="time" name="start_time" id="start_time" class="w-full px-4 py-2 border rounded text-black"
+                    required>
+            </div>
 
-            function updateTimeValidation() {
-                const selectedDate = dateInput.value;
-                const today = new Date().toISOString().split('T')[0];
+            <div class="mb-6">
+                <label for="end_time" class="block mb-2 text-sm font-medium text-gray-700">End Time</label>
+                <input type="time" name="end_time" id="end_time" class="w-full px-4 py-2 border rounded text-black"
+                    required>
+            </div>
 
-                if (selectedDate === today) {
+            <div class="flex items-center gap-4">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">
+                    Submit
+                </button>
 
-                    const now = new Date();
-                    const currentTime = now.getHours().toString().padStart(2, '0') + ':' +
-                        now.getMinutes().toString().padStart(2, '0');
-                    startTimeInput.setAttribute('min', currentTime);
-                } else {
-
-                    startTimeInput.removeAttribute('min');
-                }
-            }
-
-            dateInput.addEventListener('change', updateTimeValidation);
-
-            updateTimeValidation();
-        });
-    </script>
+                <a href="{{ route('employee.dashboard') }}"
+                    class="bg-gray-400 hover:bg-gray-600 text-white px-4 py-2 rounded transition">
+                    Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
 @endsection
