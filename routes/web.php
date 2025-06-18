@@ -32,11 +32,11 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::get('/employee/view-log', [EmployeeController::class, 'viewLogs'])->name('employee.view-log');
 });
 
-
 Route::get('/manager/{id}/edit', [ManagerController::class, 'edit'])->name('manager.edit');
 Route::put('/manager/{id}', [ManagerController::class, 'update'])->name('manager.update');
 Route::delete('/manager/{id}', [ManagerController::class, 'destroy'])->name('manager.destroy');
-
+Route::get('/manager/charts', [ManagerController::class, 'charts'])->name('manager.charts');
+Route::get('/manager/dashboard', [ManagerController::class, 'dashboard'])->name('manager.dashboard');
 
 Route::get('/', function () { //anonymous funnction for some root URL
     return view('home');

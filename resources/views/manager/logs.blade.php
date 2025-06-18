@@ -2,6 +2,7 @@
 @section('title', 'Manage Logs')
 
 @section('content')
+    {{-- Employee Registration Form --}}
     <h2 class="text-xl font-bold mb-4">Register New Employee</h2>
 
     <form action="{{ route('employee.logs') }}" method="POST" class="mb-6 grid grid-cols-4 gap-4 items-end">
@@ -36,6 +37,7 @@
         <div class="bg-green-100 text-green-800 p-2 rounded mb-4">{{ session('success') }}</div>
     @endif
 
+    {{-- Filters --}}
     <h2 class="text-xl font-bold mb-4">All Employee Time Logs</h2>
 
     <form method="GET" class="grid grid-cols-6 gap-4 mb-4">
@@ -81,21 +83,18 @@
             @endforeach
         </select>
 
-        @php
-            $today = date('Y-m-d');
-        @endphp
-
+        @php $today = date('Y-m-d'); @endphp
         <input type="date" name="from" value="{{ request('from') }}" max="{{ $today }}"
-            class="border p-2 rounded" placeholder="From Date">
+            class="border p-2 rounded">
         <input type="date" name="to" value="{{ request('to') }}" max="{{ $today }}"
-            class="border p-2 rounded" placeholder="To Date">
+            class="border p-2 rounded">
 
         <button class="bg-green-600 text-white px-4 py-2 rounded col-span-1">Filter</button>
         <a href="{{ route('manager.logs.export', request()->query()) }}"
             class="bg-blue-600 text-white px-4 py-2 rounded text-center col-span-1">Export CSV</a>
     </form>
 
-
+    {{-- Table --}}
     <table class="w-full text-left border">
         <thead class="bg-gray-200">
             <tr>
@@ -121,7 +120,6 @@
                     <td class="p-2">{{ $log->total_hours }}</td>
                     <td class="p-2">
                         <a href="{{ route('manager.edit', $log->id) }}" class="text-blue-600 hover:underline">Edit</a> |
-
                         <form action="{{ route('manager.destroy', $log->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
@@ -133,4 +131,8 @@
             @endforeach
         </tbody>
     </table>
+
+    {{-- Charts --}}
+    @include('charts')
+
 @endsection
