@@ -36,9 +36,9 @@ class EmployeeController extends Controller
         return response()->json($project->subprojects);
     }
 
-
     public function store(Request $request)
     {
+       //dd($request->all());
         $validated = $request->validate([
             'department_id' => 'required',
             'project_id' => 'required',

@@ -9,6 +9,7 @@ use App\Models\TimeLog;
 use App\Models\Department;
 use App\Exports\TimeLogsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Events\TimeLogsExportRequested;
 
 class ManagerController extends Controller
 {
@@ -152,15 +153,16 @@ class ManagerController extends Controller
             $query->whereDate('date', '<=', $request->to);
         }
 
-        $logs = $query->get();
+        $filters = $request->all();
+        $email = auth()->user()->email;
 
-        return Excel::download(new TimeLogsExport($logs), 'time_logs.csv');
+        TimeLogsExportRequested::dispatch($filters, $email);
+
+        return back()->with('success', 'Export process started. You will receive an email once ready.');
     }
 
-    public function charts()
-    {
-        // Optional separate chart route
-    }
+
+    public function charts() {}
 
     public function dashboard()
     {
