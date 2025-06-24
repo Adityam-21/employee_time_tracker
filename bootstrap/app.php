@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })
-    ->withCommands([
+    ->withCommands([//chaining whatever comes before this
         \App\Console\Commands\SendDailyWorkReport::class,
     ])
     ->withSchedule(function (Schedule $schedule) {

@@ -20,9 +20,9 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
 
-        // Custom event mapping
-        UserRegistered::class => [
-            SendRegistrationEmail::class,
+        // ✅ Export event to listener mapping
+        \App\Events\TimeLogsExportRequested::class => [
+            \App\Listeners\HandleTimeLogsExport::class,
         ],
     ];
 

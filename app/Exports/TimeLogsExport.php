@@ -13,14 +13,14 @@ class TimeLogsExport implements FromCollection, WithHeadings
 
     public function __construct($logs)
     {
-        $this->logs = $logs;
+        $this->logs = collect($logs);
     }
 
     public function collection()
     {
         return $this->logs->map(function ($log) {
             return [
-                'Employee'     => ($log->user_name ?? 'N/A'),
+                'Employee'     => ($log->employee_name ?? 'N/A'),
                 'Date'         => $log->date,
                 'Department'   => ($log->department_name ?? 'N/A'),
                 'Project'      => ($log->project_name ?? 'N/A'),
